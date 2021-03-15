@@ -1,11 +1,20 @@
-import React from 'react';
+import React,{useState} from 'react';
+import { Button, Dialog, DialogActions, DialogContent } from '@material-ui/core';
+import * as LoginAction from '../../redux/actions/LoginAction'
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 
 const TopNabBar=(props)=>{
+    const [open, setOpen] = useState(false);
+    const handleClickOpen = () => { setOpen(true); };
+    const handleClose = () => { setOpen(false); };
+
     return <nav className="navbar navbar-expand navbar-light navbar-bg">
     <a className="sidebar-toggle d-flex">
         <i className="hamburger align-self-center"></i>
     </a>
     <LoadSerachForm />
+    {CallLogOut({ handleClickOpen, open, handleClose, mainProps: props })}
     <div className="navbar-collapse collapse">
         <ul className="navbar-nav navbar-align">
             <li className="nav-item dropdown"> <LoadNotifications /> </li>
@@ -23,12 +32,28 @@ const TopNabBar=(props)=>{
                     <a className="dropdown-item" href="pages-settings.html"><i className="align-middle me-1" data-feather="settings"></i> Settings & Privacy</a>
                     <a className="dropdown-item" href="#"><i className="align-middle me-1" data-feather="help-circle"></i> Help Center</a>
                     <div className="dropdown-divider"></div>
-                    <a className="dropdown-item" href="#">Log out</a>
+                    <a className="dropdown-item" href="#" onClick={handleClickOpen}>Log out</a>
                 </div>
             </li>
         </ul>
     </div>
 </nav>
+}
+
+// this compoent calling on Logout 
+const CallLogOut = (props) => {
+    const { open, handleClose } = props
+    const { UserLogout } = (props.mainProps && props.mainProps.LoginAction) && props.mainProps.LoginAction
+    return <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+      <DialogContent>
+        <p> Are sure want to log out from this account, if yes click logout account ? </p>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose} color="secondary"> Cancel</Button>
+        {/* This user logout function declare in the login action and state action in store */}
+        <Button onClick={UserLogout} color="primary"> Logout Account</Button>
+      </DialogActions>
+    </Dialog>
 }
 
 // this compoent will load the serach form on top nav bar
@@ -115,4 +140,8 @@ const LoadNotifications=(props)=>{
 </>
 }
 
-export default TopNabBar;
+const mapStateToProps = state => { return state }
+const mapDispatchToProps = dispatch => ({
+  LoginAction: bindActionCreators(LoginAction, dispatch)
+})
+export default connect(mapStateToProps, mapDispatchToProps)(TopNabBar);
